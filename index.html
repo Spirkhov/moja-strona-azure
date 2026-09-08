@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pl">
 <head>
@@ -9,31 +8,87 @@
         body {
             font-family: Arial, sans-serif;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
             background: linear-gradient(135deg, #0078D4, #50E6FF);
             color: white;
             text-align: center;
-        }
-        .container {
-            padding: 40px;
+            padding: 40px 20px;
+            box-sizing: border-box;
         }
         h1 {
-            font-size: 3rem;
+            font-size: 2.5rem;
             margin-bottom: 10px;
         }
-        p {
-            font-size: 1.2rem;
+        p.subtitle {
+            font-size: 1.1rem;
             opacity: 0.9;
+            margin-bottom: 30px;
+        }
+        #wiadomosci {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 20px 30px;
+            max-width: 500px;
+            width: 100%;
+        }
+        .wiadomosc {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin: 10px 0;
+            text-align: left;
+        }
+        .wiadomosc .tresc {
+            font-weight: bold;
+        }
+        .wiadomosc .data {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+        #status {
+            font-style: italic;
+            opacity: 0.8;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Witaj, świecie! 👋</h1>
-        <p>To moja pierwsza strona wystawiona w Azure Static Web Apps.</p>
+    <h1>Witaj, świecie! 👋</h1>
+    <p class="subtitle">Dane pobrane na żywo z Azure SQL Database przez Azure Functions</p>
+
+    <div id="wiadomosci">
+        <p id="status">Ładowanie wiadomości...</p>
     </div>
+
+    <script>
+        // Adres naszej funkcji GetMessage — PODMIEŃ na swój faktyczny adres
+        const URL_FUNKCJI = 'https://func-moja-strona-nauka-hchvbfathpcxaca4.swedencentral-01.azurewebsites.net/api/GetMessage';
+
+        // fetch() to wbudowana w przeglądarkę funkcja do wysyłania zapytań HTTP
+        // Domyślnie robi zapytanie GET — dokładnie to, czego potrzebuje nasza funkcja
+        fetch(URL_FUNKCJI)
+            .then(response => response.json()) // zamieniamy odpowiedź (JSON) na obiekt JavaScript
+            .then(dane => {
+                const kontener = document.getElementById('wiadomosci');
+                kontener.innerHTML = ''; // czyścimy napis "Ładowanie..."
+
+                // Dla każdej wiadomości z bazy tworzymy element HTML i dodajemy go do strony
+                dane.forEach(wiadomosc => {
+                    const div = document.createElement('div');
+                    div.className = 'wiadomosc';
+                    div.innerHTML = `
+                        <div class="tresc">${wiadomosc.Wiadomosc}</div>
+                        <div class="data">${new Date(wiadomosc.DataUtworzenia).toLocaleString('pl-PL')}</div>
+                    `;
+                    kontener.appendChild(div);
+                });
+            })
+            .catch(blad => {
+                // Jeśli coś pójdzie nie tak (np. funkcja nie odpowiada), pokazujemy czytelny komunikat
+                document.getElementById('status').innerText = 'Błąd ładowania wiadomości: ' + blad.message;
+            });
+    </script>
 </body>
 </html>
