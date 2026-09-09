@@ -30,10 +30,12 @@ module.exports = async function (context, req) {
             body: result.recordset
         };
     } catch (err) {
-        // Jeśli coś pójdzie nie tak (np. problem z połączeniem), zwracamy błąd zamiast danych
-        context.res = {
-            status: 500,
-            body: "Błąd połączenia z bazą: " + err.message
-        };
-    }
+    context.log.error("Błąd połączenia z bazą: " + err.message); // <-- to trafi do traces/exceptions
+    context.res = {
+        status: 500,
+        body: "Błąd połączenia z bazą: " + err.message
+    };
+}
 };
+
+
